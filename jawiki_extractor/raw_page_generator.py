@@ -29,4 +29,4 @@ class RawPageGenerator:
                     lines = []
                     state = "find_page"
                 else:
-                    lines.append(line.lstrip())
+                    lines.append(line.strip())
