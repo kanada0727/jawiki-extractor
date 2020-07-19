@@ -1,8 +1,9 @@
-from dataclasses import dataclass
 
-
-@dataclass
 class WikiPage:
-    title: str = ""
-    text: str = ""
-    is_acceptable: bool = True
+    def __init__(self):
+        self.title = None
+        self.texts = []
+        self.is_acceptable = True
+
+    def __repr__(self):
+        return f"WikiPage(title={self.title} texts={self.texts})"
