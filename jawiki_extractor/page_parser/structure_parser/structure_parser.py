@@ -1,4 +1,4 @@
-from jawiki_extractor.objects import WikiPage
+from jawiki_extractor.objects import WikiPage, Section
 from .title_verifier import TitleVerifier
 from .line_verifier import LineVerifier
 from .xml_affix_processor import XmlAffixProcessor
@@ -60,24 +60,53 @@ class FindText:
             page.is_acceptable = False
             return None
 
-        return AppendText.run(line, page)
+        return InitSection.run(line, page)
 
 
-class AppendText:
+class InitSection:
     @classmethod
     def run(cls, line, page):
-        if not XmlAffixProcessor.has_suffix(line, "text"):
-            if LineVerifier.is_acceptable(line):
-                page.texts.append(line)
-            return AppendText
+        section = Section()
 
-        line = XmlAffixProcessor.strip_suffix(line, "text")
-        if LineVerifier.is_acceptable(line):
-            page.texts.append(line)
-        return None
+        if DslAffixProcessor.has_affix(line, "header"):
+            section.set_header(line)
+            return cls._transition_process(page, section, lambda: PopulateSection)
+        else:
+            return cls._transition_process(page, section, lambda: PopulateSection.run(line, page))
 
     @staticmethod
-    def _append_line(line, page):
-        # decide not to use this func to reduce costs of function call
-        if LineVerifier.is_acceptable(line):
-            page.texts.append(line)
+    def _transition_process(page, section, transition_func):
+        page.append_section(section)
+        section.validate()
+        if section.is_acceptable:
+            return transition_func()
+        else:
+            return IgnoreSection
+
+
+class IgnoreSection:
+    @staticmethod
+    def run(line, page):
+        if DslAffixProcessor.has_affix(line, "header"):
+            return InitSection.run(line, page)
+
+        elif XmlAffixProcessor.has_suffix(line, "text"):
+            return None
+        else:
+            return IgnoreSection
+
+
+class PopulateSection:
+    @staticmethod
+    def run(line, page):
+        if DslAffixProcessor.has_affix(line, "header"):
+            return InitSection.run(line, page)
+        elif XmlAffixProcessor.has_suffix(line, "text"):
+            line = XmlAffixProcessor.strip_suffix(line, "text")
+            if LineVerifier.is_acceptable(line):
+                page.last_section.texts.append(line)
+            return None
+        else:
+            if LineVerifier.is_acceptable(line):
+                page.last_section.texts.append(line)
+            return PopulateSection
