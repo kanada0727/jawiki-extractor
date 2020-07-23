@@ -9,10 +9,10 @@ class StructureParser:
     def run(cls, raw_page):
         page = WikiPage()
         line_parser = StatefulLineParser()
+
         for line in raw_page.lines:
             if len(line) == 0:
                 continue
-
             line_parser.run(line, page)
             if line_parser.current_state is None:
                 return page
@@ -71,8 +71,7 @@ class InitSection:
 
     @staticmethod
     def _transition_process(page, section, transition_func):
-        page.append_section(section)
-        section.validate()
+        page.sections.append(section)
         if section.is_acceptable:
             return transition_func()
         else:
@@ -99,9 +98,9 @@ class PopulateSection:
         elif LineProcessor.has_suffix(line, "text"):
             line = LineProcessor.strip_suffix(line, "text")
             if LineVerifier.is_acceptable(line):
-                page.last_section.texts.append(line)
+                page.sections.last_section.texts.append(line)
             return None
         else:
             if LineVerifier.is_acceptable(line):
-                page.last_section.texts.append(line)
+                page.sections.last_section.texts.append(line)
             return PopulateSection
