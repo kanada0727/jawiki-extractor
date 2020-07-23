@@ -1,0 +1,40 @@
+prefix:
+  page:
+    identifier: "<page>"
+    strip_func: remove_prefix_by_length
+  title:
+    identifier: "<title>"
+    strip_func: remove_prefix_by_length
+  text:
+    identifier: "<text"
+    strip_func: remove_prefix_by_angle_close_bracket_offset
+  decorations:
+    identifier:
+      - ";"
+      - ":"
+      - "#"
+      - "*"
+      - "-"
+    strip_func: remove_prefix_until_continuous_char_end
+  redirect:
+    identifier:
+      - "#REDIRECT"
+      - "#転送"
+  header:
+    identifier: "=="
+
+suffix:
+  page:
+    identifier: "</page>"
+    strip_func: remove_suffix_by_length
+  title:
+    identifier: "</title>"
+    strip_func: remove_suffix_by_length
+  text:
+    identifier: "</text>"
+    strip_func: remove_suffix_by_length
+  header:
+    identifier: "=="
+
+alias:
+  horizontal_line: "----"
