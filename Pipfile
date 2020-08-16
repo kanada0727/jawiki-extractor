@@ -9,6 +9,7 @@ tqdm = "*"
 
 [packages]
 pyyaml = "*"
+regex = "*"
 
 [requires]
 python_version = "3.7"
